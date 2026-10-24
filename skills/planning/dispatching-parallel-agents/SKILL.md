@@ -65,6 +65,10 @@ Each agent gets:
 
 ### 3. Dispatch in Parallel
 
+**Model Gate first:** confirm the model map for every executor profile with the user
+(see subagent-driven-development, REQUIRED GATE) — a parallel fan-out dispatches on
+several providers at once, so an unapproved model burns tasks in bulk.
+
 **Kanban mode (primary in the multi-profile setup):** create one kanban task per
 independent domain — `board=<slug>`, assignee = the executor profile that owns
 the domain — and let the dispatcher run them concurrently (one in-progress task

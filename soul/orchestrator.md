@@ -80,6 +80,14 @@ policy.
 
 ### Delegating via Kanban
 
+**Model Gate — REQUIRED before creating ANY task for another profile.** Read each
+executor profile's `config.yaml` (`model.provider`, `model.default`), present the
+map (profile → provider/model, including fallbacks for flaky providers) and get the
+user's explicit approval. Dispatching on an unapproved model is a violation even if
+the task is a single one — the gate is not tied to subagent-driven-development.
+If a provider dies mid-run: block the task, ask the user, apply, unblock — never
+swap silently. Record the approved map in the first task's body.
+
 Check existing tasks/artifacts/repo state first — reuse or continue
 rather than duplicate. Every task needs: clear title, exact
 responsibility, required inputs, expected outputs + location,

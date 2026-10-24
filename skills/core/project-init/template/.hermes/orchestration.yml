@@ -93,6 +93,9 @@ routing:
 # Workflow policy
 # ============================================================
 policy:
+  # Model Gate: orchestrator обязан утвердить карту моделей (профиль → провайдер/модель)
+  # с пользователем ДО создания любой kanban-задачи — включая одиночные. Нарушение = BLOCKED.
+  models_approved_before_dispatch: true
   max_rework_iterations: 3
   auto_merge: false
   auto_push: false
