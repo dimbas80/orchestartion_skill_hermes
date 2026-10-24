@@ -111,6 +111,25 @@ discovers a dead provider mid-task burns the budget of the whole run.
    (worker fails on an unavailable model, the circuit breaker trips):
    `kanban_block` the task, ask your human partner which fallback to use,
    apply it, unblock. A silent model swap is a decision made in secret.
+6. **The gate is enforced, not advisory.** Skipping it does not merely break
+   policy — a supervisor (the mentor/наставник) auto-blocks the task with
+   "Model Gate: модель не утверждена" before the worker runs. There is no
+   fast path; the first dispatch is where the block lands.
+
+**"Approval" can mean changing the executor's model — two mechanisms, pick by scope.**
+The approved map may disagree with a profile's `config.yaml` (e.g. the profile sits on
+`custom:anymodel / am/minimax-m3`, the user wants `zai / glm-5.3-flash`):
+- project-specific choice → pin it per task: `hermes kanban set-model [--provider P] <task_id> <model>`
+  (the profile's global config stays untouched for its other projects);
+- the user approves it as the profile's new default → patch the profile's `config.yaml`
+  (`model.provider` / `model.default`) — and say explicitly that this changes every
+  project of that profile.
+
+**Recovery when the block already landed:** get explicit approval → apply the model
+(per-task `set-model`, or patch the profile config when the user chose that) → record
+the approved map in the task body via `kanban_comment` → `kanban_unblock`. Do not
+recreate the task: the blocked card carries the context, and the supervisor re-checks
+it on unblock.
 
 ## The Process
 
