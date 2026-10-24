@@ -125,12 +125,26 @@ skillset/
 сета на другой машине: `skills/` + `soul/` + `skills/core/project-init/template/`
 образуют самодостаточный комплект.
 
-## Установка в профили (когда набор будет собран)
+## Установка в профили (выполнено 24.10.2026)
 
-- `core/` → все 7 профилей (hardware-designer слит в architect)
-- `coding/` → coder (+ default); `planning/` → orchestrator, architect (+ default); `review/` → reviewer
-- Порядок: бэкап каталогов `skills/` → копирование → `hermes skills list -p <профиль>` → считать enabled/disabled
-- Правки применять только к НОВЫМ сессиям
+- `core/` → все 7 профилей (по 10 скиллов) — hardware-designer слит в architect
+- `coding/` → coder + default (8); `planning/` → orchestrator, architect + default (12);
+  `review/` → reviewer (1)
+- Итого по профилям: default 30 · orchestrator 22 · architect 22 · coder 18 ·
+  reviewer 11 · enginer 10 · 3dprint 10 (= 123 инсталляции)
+- `soul/`: architect и orchestrator установлены (обновлённые версии), остальные
+  совпадали с живыми; профиль hardware-designer удалён
+- `git-guardrails`: скрипт `~/.hermes/agent-hooks/block-dangerous-git.sh` +
+  `hooks.pre_tool_call` (matcher `terminal`, `fail_closed`) во всех 7 профилях
+- Пересечения убраны: superpowers-категория (9 скиллов × 3 профиля = 27),
+  hub-копии `test-driven-development` / `systematic-debugging` / `plan`
+  (3 × 8 корней = 24); в reviewer отключены `requesting-code-review`,
+  `sdlc-review`, в coder — `requesting-code-review` (наши `code-review` /
+  `executing-plans` их заменяют)
+- Бэкап перед установкой: `~/.hermes/backups/stage7-preinstall-20261024-1828.tgz`
+- Проверка: `hermes skills list -p <профиль> --enabled-only` — все наши скиллы
+  видны как enabled; живой one-shot в reviewer вернул `code-review` в контексте
+- Правки применяются только к НОВЫМ сессиям профилей
 
 ## Рабочий путь: от `project-init` до merge
 
