@@ -1,6 +1,6 @@
 # Каталог скиллов и рабочий путь
 
-31 скилл в 4 модулях (`core/`, `planning/`, `coding/`, `review/`) + шаблон проекта
+32 скилла в 4 модулях (`core/`, `planning/`, `coding/`, `review/`) + шаблон проекта
 внутри `project-init/template/`. Источники — в [README](README.md#источники).
 
 Скиллы вызываются по имени: в Hermes нет «команд» — есть `description` в
@@ -43,6 +43,7 @@ frontmatter, по которому агент сам понимает, когд�
 | `to-spec` | Разговор → спека без нового интервью; фича-спека в `.scratch/<feature>/spec.md`, продуктовые доки в `docs/product/` | «оформи в спеку», «зафиксируй требования» |
 | `to-tickets` | Спека/план → tracer-bullet тикеты (`.scratch/issues/NN-slug.md`) + зеркала Kanban-задач | «нарежь тикеты», «разложи на задачи» |
 | `wayfinder` | Большая «туманная» работа: карта решений (destination, decision tickets, frontier) вместо преждевременного тикета | «непонятно с чего начать», работа не влезает в один заход |
+| `spike` | Прототип-выброс: decompose → research → build → verdict (VALIDATED / PARTIAL / INVALIDATED); одноразовый код в `spikes/`, вывод — README спайка | «прикинь прототип», «сравни подходы A и B», «возможно ли вообще» — когда docs не отвечают |
 | `writing-plans` | Спека → `docs/architecture/implementation-plan.md` (фикс. имя = контракт handoff архитектор→кодер); цепочка TDD-шагов | Утверждённый дизайн/спека есть, нужен план внедрения |
 | `subagent-driven-development` | Диспетчерский режим: план → Kanban-задачи по профилям (fresh контекст), task review после каждой, финальный ревью ветки, **Model Gate** | План готов, «диспетчируй задачи», «разложи по ролям» |
 | `dispatching-parallel-agents` | Параллельные независимые домены: по задаче на домен, интеграция после возврата | Несколько независимых участков работы |
@@ -150,6 +151,7 @@ cp soul/orchestrator.md ~/.hermes/profiles/orchestrator/SOUL.md   # и т.д.
 | «сделай ревью» | code-review (две оси) |
 | «заверши ветку / сделай PR» | finishing-a-development-branch + pr |
 | «сохрани состояние» | summary.md |
+| «прикинь прототип / сравним подходы» | spike (spikes/ + verdict) |
 | «научи меня <теме>» | teach |
 
 ## Правила, которые действуют всегда

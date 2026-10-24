@@ -20,7 +20,7 @@
 |---|---|---|---|
 | **mattpocock/skills** | https://github.com/mattpocock/skills | `5beb35b` | grilling, domain-modeling, to-spec, to-tickets, wayfinder, code-review, pr, retro, wizard, triage, codebase-design, improve-codebase-architecture, teach, to-questionnaire, writing-for-agents, wait-what, summary (основа handoff), git-guardrails (Claude-Code-версия) |
 | **obra/superpowers** | https://github.com/obra/superpowers | `2ce8aa1` | brainstorming, writing-plans, executing-plans, subagent-driven-development, dispatching-parallel-agents, using-git-worktrees, verification-before-completion, receiving-code-review, finishing-a-development-branch |
-| **Hermes Agent hub** | каталог скиллов Hermes (`hermes skills`) | — | test-driven-development, systematic-debugging — канонические hub-копии (богаче апстримов) |
+| **Hermes Agent hub** | каталог скиллов Hermes (`hermes skills`) | — | test-driven-development, systematic-debugging — канонические hub-копии (богаче апстримов); spike — прототип-выброс (нужен wayfinder) |
 | **Собственные** | — | — | project-init (bootstrap проекта + единый шаблон в `template/`), git-guardrails (адаптация формата Claude Code под Hermes shell hooks), summary (переименование из opencode-команды `handoff`) |
 
 Обе апстрим-коллекции распространяются по лицензии **MIT**; атрибуция сохранена
@@ -35,7 +35,7 @@
 ```
 skillset/
 ├── README.md                  # этот файл: состав, источники, профили
-├── SKILLS.md                  # каталог 31 скилла + рабочий путь пользователя
+├── SKILLS.md                  # каталог 32 скиллов + рабочий путь пользователя
 └── skills/
     ├── core/                  # ядро — во ВСЕ профили
     │   ├── project-init/      # СВОЙ: bootstrap проекта (template/ внутри скилла)
@@ -54,6 +54,7 @@ skillset/
     │   ├── to-spec/           # [M] разговор → спека (.scratch/<feature>/spec.md), без интервью
     │   ├── to-tickets/        # [M] → tracer-bullet тикеты (.scratch/issues/) + зеркала Kanban
     │   ├── wayfinder/         # [M] большая работа-«туман»: карта решений (destination/тикеты/frontier)
+    │   ├── spike/             # [H hub] прототип-выброс: проверить идею/подход до сборки (нужен wayfinder)
     │   ├── writing-plans/     # [O] спека → docs/architecture/implementation-plan.md (architect)
     │   ├── subagent-driven-development/ # [O] диспетчер через Kanban + Model Gate
     │   ├── dispatching-parallel-agents/ # [O] параллельные независимые домены
@@ -106,6 +107,7 @@ skillset/
 | `skills/core/git-guardrails` | [M→адаптирован] Hermes shell hook `hooks.pre_tool_call` в config.yaml профиля (matcher `terminal`, `fail_closed`), скрипт в `~/.hermes/agent-hooks/`, exit 2 = блок. Формат stdin Claude Code совместим 1-в-1. v1 ловит только tool `terminal` (git из python-subprocess — вне охвата) |
 | `skills/coding/test-driven-development` | [H hub←obra v1.1.0] Каноническая копия hub-версии (богаче obra: детальный RED-GREEN-REFACTOR, Anti-Patterns, Hermes Integration). Для reinstall/шаринга — полный набор самодостаточен |
 | `skills/coding/systematic-debugging` | [H hub←obra v1.1.0] Каноническая копия hub-версии (4 фазы + Feedback Loop Rule + Rule of Three). Для reinstall/шаринга — полный набор самодостаточен |
+| `skills/planning/spike` | [H hub] Добавлен для самодостаточности: на него ссылается wayfinder (prototype-тикеты). description RU с триггерами; ссылка `plan` → `writing-plans`; параллельные спайки — Kanban primary, delegate_task — solo-фолбэк |
 | `skills/core/project-init` | НОВЫЙ скилл: при старте проекта — **копия шаблона из каталога самого скилла** (`project-init/template/`, не хардкод-путь — скилл самодостаточен для шаринга/других агентов), git init, `codegraph init`, и только потом интервью. Шаблон единый: **software + embedded** (firmware→`src/` без подпапок; lib/include/hardware агент создаёт при необходимости), architect — и софт-, и хард-архитектор |
 
 ## Профили (кто что получает)
@@ -128,10 +130,10 @@ skillset/
 ## Установка в профили (выполнено 24.10.2026)
 
 - `core/` → все 7 профилей (по 10 скиллов) — hardware-designer слит в architect
-- `coding/` → coder + default (8); `planning/` → orchestrator, architect + default (12);
+- `coding/` → coder + default (8); `planning/` → orchestrator, architect + default (13);
   `review/` → reviewer (1)
-- Итого по профилям: default 30 · orchestrator 22 · architect 22 · coder 18 ·
-  reviewer 11 · enginer 10 · 3dprint 10 (= 123 инсталляции)
+- Итого по профилям: default 31 · orchestrator 23 · architect 23 · coder 18 ·
+  reviewer 11 · enginer 10 · 3dprint 10 (= 126 инсталляций)
 - `soul/`: architect и orchestrator установлены (обновлённые версии), остальные
   совпадали с живыми; профиль hardware-designer удалён
 - `git-guardrails`: скрипт `~/.hermes/agent-hooks/block-dangerous-git.sh` +
@@ -190,7 +192,7 @@ skillset/
 
 ## Ревью набора (24.10.2026)
 
-Полное ревью 31 скилла субагентом (deepseek-flash) по 6 требованиям: полнота,
+Полное ревью набора (31 скилл на момент ревью; `spike` добавлен после — применены те же правила) субагентом (deepseek-flash) по 6 требованиям: полнота,
 Hermes-совместимость, делегация через Kanban + Model Gate, отсутствие хардкод-путей,
 README-профили + soul/, отсутствие висячих ссылок.
 
