@@ -73,7 +73,7 @@ skillset/
     │   └── wizard/            # [M] bash-визарды для человеко-шагов (template.sh)
     ├── review/                # reviewer
     │   └── code-review/       # [M] 2 оси: Standards (Фаулер-смеллы) + Spec; Kanban основной, delegate_task — solo-фолбэк
-└── soul/                      # SOUL.md всех 8 профилей (переустановка/шаринг)
+└── soul/                      # SOUL.md 7 рабочих профилей (переустановка/шаринг)
 ```
 
 ## Что исправлено относительно апстрима
@@ -131,6 +131,48 @@ skillset/
 - `coding/` → coder (+ default); `planning/` → orchestrator, architect (+ default); `review/` → reviewer
 - Порядок: бэкап каталогов `skills/` → копирование → `hermes skills list -p <профиль>` → считать enabled/disabled
 - Правки применять только к НОВЫМ сессиям
+
+## Рабочий путь: от `project-init` до merge
+
+Как пользователь работает с набором. Роли: **orchestrator** ведёт и диспетчит,
+**architect** проектирует, **coder** пишет, **reviewer** проверяет. Задачи ходят
+через Kanban-доску проекта; модели исполнителей согласуются до постановки задач.
+Полный каталог «что делает каждый скилл» — в [SKILLS.md](SKILLS.md).
+
+| № | Шаг | Скилл | Профиль | Результат |
+|---|---|---|---|---|
+| 0 | «Начинаем новый проект X» | `project-init` | любой (обычно orchestrator) | шаблон из каталога скилла, `git init`, `.gitignore`, `codegraph init` |
+| 1 | Интервью «что делаем» | `brainstorming` | orchestrator | design doc в `docs/product/`; `GLOSSARY.md` + `docs/adr/` по ходу; **HARD-GATE** — без «ок» дальше нельзя |
+| 2 | «Проверь план» (по желанию) | `grilling` | orchestrator | пакетные раунды вопросов, рекомендации, правки плана |
+| 3 | План внедрения | `writing-plans` | architect | `docs/architecture/implementation-plan.md` (фикс. имя = контракт handoff) |
+| 3a | Если работа «туманная» | `wayfinder` | orchestrator | карта решений вместо преждевременных тикетов |
+| 4 | «Нарежь тикеты» | `to-tickets` | orchestrator | `.scratch/issues/NN-slug.md` + зеркала Kanban |
+| 5 | «Диспетчируй» | `subagent-driven-development` | orchestrator | **Model Gate** (таблица «профиль → модель/провайдер», твоё утверждение) → задачи на доску `board=<slug>` |
+| 6 | Исполнение | `executing-plans` (+ `using-git-worktrees`, `test-driven-development`, `systematic-debugging`) | coder | код в `src/`, коммиты, `workflows/<task_id>/implementation-report.md` |
+| 7 | Ревью | `code-review` | reviewer | `workflows/<task_id>/review.md`; замечания → `receiving-code-review`, ≤3 раунда |
+| 8 | Завершение | `finishing-a-development-branch` (+ `pr`) | orchestrator | решение merge / PR / keep, тело PR, уборка worktree |
+
+**Ветвления**
+
+- **Hardware-проект** — тот же путь: `architect` на шаге 3 дополнительно проектирует
+  электронику (компоненты, расчёты, power budget, pinout, BOM) — профиля
+  hardware-designer нет.
+- **Фича в существующем проекте** — без шага 0: `brainstorming` → `to-spec` →
+  `to-tickets` → шаги 5–8.
+- **Баг** — `systematic-debugging` (tight repro) → фикс под `test-driven-development` →
+  `code-review` → `verification-before-completion` перед словом «готово».
+- **Архитектурный рефакторинг** — `improve-codebase-architecture` / `codebase-design` →
+  `grilling` → `writing-plans` → шаги 5–8.
+- **Передача работы** — `summary` (create/update) перед сменой сессии.
+
+**Примеры промптов:** «начинаем новый проект X» · «проверь план» · «оформи в спеку» ·
+«нарежь тикеты» · «диспетчируй задачи» · «выполни план» · «почему падает тест» ·
+«сделай ревью» · «заверши ветку / сделай PR» · «сохрани состояние».
+
+**Действует всегда:** модель меняется только с твоего согласования (эскалация =
+переназначение задачи, не тихая смена); делегация — через Kanban; служебное
+(`.hermes/`, `docs/`, `workflows/`, `.scratch/`, `.codegraph/`, `summary.md`)
+в git проекта не попадает; `git-guardrails` блокирует опасные git-команды.
 
 ## Ревью набора (24.10.2026)
 
