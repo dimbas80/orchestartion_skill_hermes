@@ -102,6 +102,9 @@ discovers a dead provider mid-task burns the budget of the whole run.
    provider/model, read from each profile's `config.yaml`
    (`model.provider`, `model.default`). The reviewer is part of the map:
    the final whole-branch review is a capable-model job by design.
+   When the user names a model in shorthand (e.g. «deepseek-flash»), resolve it
+   to the exact model id from `config.yaml`/`custom_providers` (e.g. `deepseek-v4-flash`)
+   and state what you set — never write a shorthand that is not a real model id.
 2. Present it as a table and ask for explicit approval. For unreliable
    providers, propose the fallback: which profile/model takes over.
 3. Offer a cheap health-check per executor (a one-token test call through that
