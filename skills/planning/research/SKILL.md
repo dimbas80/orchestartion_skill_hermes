@@ -9,6 +9,8 @@ profile; otherwise a background in-session subagent.
 
 For web sources use the tavily skills (`tavily-search`, `tavily-research`); local files and code are read directly. Whatever the channel, each claim is still cited to its primary source.
 
+**Dependency:** tavily-* are hub skills (CLI `tvly` + `TAVILY_API_KEY`), not part of this set — they ship in the default and orchestrator profiles. If a profile has no tavily skills, use the built-in `web_search` / `web_extract` tools and say in the report which channel was used.
+
 Its job:
 
 1. Investigate the question against **primary sources** (official docs, source code, specs, first-party APIs), not a secondary write-up of them. Follow every claim back to the source that owns it.
