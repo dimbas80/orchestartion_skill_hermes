@@ -126,7 +126,9 @@ The approved map may disagree with a profile's `config.yaml` (e.g. the profile s
   (the profile's global config stays untouched for its other projects);
 - the user approves it as the profile's new default → patch the profile's `config.yaml`
   (`model.provider` / `model.default`) — and say explicitly that this changes every
-  project of that profile.
+  project of that profile. A fallback-only change edits the `fallback_providers` list
+  (each entry `provider`/`model`) instead of the primary keys — the primary stays put,
+  so this is narrower than a default change and affects only failover.
 
 **Recovery when the block already landed:** get explicit approval → apply the model
 (per-task `set-model`, or patch the profile config when the user chose that) → record
