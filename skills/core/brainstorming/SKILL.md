@@ -51,12 +51,12 @@ Never ask what the project or their context already answers.
 interview INPUT, not a replacement for the interview: read it first, then ask
 about the gaps. While formalizing it, actively hunt internal contradictions —
 each one goes to the user as an explicit question (they supply the real values;
-never pick "на усмотрение архитектора"):
-- table thresholds vs concrete numbers in configs/automations;
-- component rating vs the circuit's actual operating maximum;
-- environment assumptions (an add-on requiring HAOS won't run in HA-container/LXC —
-  standalone build or separate host).
+never pick "на усмотрение архитектора"). The recurring classes:
+- a value stated in one place vs a different value elsewhere;
+- a chosen part or setting vs its actual operating requirement;
+- an assumption about the runtime environment vs the real deployment target.
 
+Examples from past projects are illustrative — the classes are what matters.
 Unresolved items land in the decision log and the requirements' open-risks section.
 
 ## Your First Message
