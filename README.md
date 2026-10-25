@@ -144,6 +144,11 @@ skillset/
 
 ## Установка в профили (выполнено 24.10.2026)
 
+> **Статус: проверено на реальном проекте** (UPS_esp8266, 25.10.2026) — полный цикл
+> project-init → Kanban → архитектура → имплементация; результат удовлетворительный.
+> Живые уроки (Model Gate, fallback_providers, чек-листы противоречий, Skill library
+> policy в SOUL) влиты в канон и в репозиторий.
+
 - `core/` → все 7 профилей (по 10 скиллов) — hardware-designer слит в architect
 - `coding/` → coder + default (8); `planning/` → orchestrator, architect + default (13);
   `review/` → reviewer (1)
