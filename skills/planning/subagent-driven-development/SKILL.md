@@ -24,10 +24,15 @@ judgment settles what neither answers. Record every decision in the ledger as
 going. A wrong ruling costs rework your human partner can see and undo; a
 session parked on a question costs their whole day and buys nothing.
 
-Four things stop you, and only these: an irreversible or destructive
+Five things stop you, and only these: an irreversible or destructive
 operation; a security-sensitive action; a side effect outside this worktree
 that norms say you ask about first (a merge, a push to a shared branch, a
-publish); and a plan so broken that every path forward is a guess. For those,
+publish); a plan so broken that every path forward is a guess; and a ruling
+that would overturn an owner decision the project already records (a spec, an
+`AGENTS.md`/`STATE.md` line, a code comment marked as the owner's decision).
+That last one is not a ruling at all — it is the owner's to make. Asking costs
+one message; dispatching a contrary ruling costs a stopped worker, a reverted
+tree and an owner who has to re-read the mechanic from scratch. For those five,
 stop and ask.
 
 ## When to Use
@@ -89,6 +94,36 @@ what is actually done.
 The in-session subagent mechanics below still apply when the Orchestrator
 dispatches small work itself via delegate_task (e.g. research tickets) — the
 brief/report-file/no-pasted-history rules are exactly the same.
+
+### Running the board (dispatch, stop, re-spec)
+
+- **Dispatch without hanging your shell.** `hermes kanban dispatch` spawns the
+  worker as a detached process that inherits stdout, so the call can sit open
+  (or return an orphan-recovery warning) even though the worker started fine.
+  Always run it redirected and bounded:
+  `timeout 90 hermes kanban --board <slug> dispatch --max 1 > <log> 2>&1 < /dev/null`.
+  `Spawned: 1` in the log is the confirmation; re-check with `hermes kanban list`.
+- **Stop a running worker** (the owner interrupts, or the requirement changes):
+  `hermes kanban reclaim <id>` releases the claim and ends the run, then
+  `hermes kanban block <id> --kind needs_input "<one line why>"`. The reason is a
+  POSITIONAL argument — there is no `--reason` flag.
+- **Re-spec an existing card, never recreate it.** Write the new body to a file
+  and `hermes kanban edit <id> --title T --body "$(cat body.md)"`, then
+  `hermes kanban unblock <id>`. Recreating loses the run history and the
+  dependent cards' dependency edges.
+- **A spec change also rewrites the dependent cards.** The reviewer task's body
+  encodes the spec it checks against; edit only the implementer's card and the
+  reviewer will demand the old design. Edit both, then dispatch.
+- **Dirty-tree safety.** Workers run in the live project dir
+  (`workspace_kind=dir`), not a throwaway worktree. Record `git status --short`
+  at session start (and the fact that those dirty files are the owner's), so a
+  re-spec can rip out a half-done worker's edits with
+  `git checkout -- <exactly the files that were clean then>` without touching
+  the owner's uncommitted work. Read the worker's `git diff` first and confirm it
+  holds nothing but that worker's changes.
+- **Park, then re-decide, then unblock.** A blocked card keeps its context and
+  its comment history; that is why the owner's answer goes back onto the same
+  card instead of a fresh one.
 
 ## Confirm Models & Providers Before Dispatch (REQUIRED GATE)
 
@@ -427,6 +462,8 @@ covers the whole-branch review, its single fix wave, and how you finish.
 | "The reviewer will just find something new anyway" | Scoped re-reviews verify fixes; they cannot wander. New findings on untouched code go to the ledger, not the loop. |
 | "This finding is obviously wrong, I'll drop it" | You adjudicate only at the cap, and every ruling is a ledger entry. Silent discards are forbidden. |
 | "The fix was small, skip the re-review" | Unreviewed fixes are how regressions land. Every round ends with a scoped re-review. |
+| "The mechanic is obvious, I'll rule on it and dispatch" | A ruling that contradicts a decision the project already records (spec, `AGENTS.md`, a comment marked as the owner's) is not a ruling. The owner stops the worker mid-run, the tree has to be reverted, and the mechanic gets re-explained from zero. Establish the rule from the source data and put it in front of them first. |
 | "Reviews slow the loop down" | The loop without reviews is just unverified churn. Reviews are the loop's brakes and steering. |
 | "Ledger bookkeeping is overhead" | The ledger is what survives compaction. Controllers without one have re-dispatched entire completed task sequences. |
 | "The implementer spawned its own reviewer — free extra assurance" | It's a duplicate seat reviewing the same diff; the task review is the gate. A worker-spawned reviewer is a defect to flag, not rigor. |
+| "The worker's summary says 'Reviewed and approved' — it self-reviewed" | That is the implementer's SELF-review, not the task review. Dispatch the separate reviewer task anyway. Self-review re-validates the implementer's own assumptions and can bless the exact structure that is wrong (a config never compiled, a schema it invented); only an independent read against the current external docs catches it. |
