@@ -40,6 +40,8 @@ the questions.
 
 ## Look Before You Ask
 
+In an existing project, initialize or refresh the repository code graph when `codegraph` is available and requested or `.codegraph-*` exists: run `codegraph init .`, verify with `codegraph status .`, then use `codegraph explore` for symbol relationships before broad grep or bulk reads. This grounds architecture discussion in actual call paths.
+
 In an existing project, or when they've given you context (a spec, a plan,
 a handoff, files they pointed at, earlier conversation), dig in before your
 first message. Read what they referred to and the code or material it
@@ -124,6 +126,8 @@ want to talk it through. Someone counting on you needs sensible defaults,
 said in plain words. When there's existing work, build on what it already
 uses. Any choice you make goes in the design as your call, never as
 something they agreed to.
+
+For systems that generate structured documents, model repeated entities as a collection of objects, not numbered duplicate keys: `collection → validate → calculate each item → render a loop`, keeping input fields, per-item computation and rendered output separate. Do not promise that a template engine computes what it has no mechanism for — inspect the format's representation and verify computed-field substitution separately (declarative templating does not rewrite embedded formula objects).
 
 **Ground to cover.** This is territory, not a script. Never read these
 out as questions:
