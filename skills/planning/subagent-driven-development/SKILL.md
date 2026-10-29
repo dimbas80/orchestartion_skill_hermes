@@ -110,7 +110,14 @@ brief/report-file/no-pasted-history rules are exactly the same.
 - **Re-spec an existing card, never recreate it.** Write the new body to a file
   and `hermes kanban edit <id> --title T --body "$(cat body.md)"`, then
   `hermes kanban unblock <id>`. Recreating loses the run history and the
-  dependent cards' dependency edges.
+  dependent cards' dependency edges. Re-spec has a window: while the card is
+  still gated/`todo`. Once a worker holds the claim it has already read the body — put the finding in `kanban_comment` on that card (durable, and the reviewer
+  card can point at it) and add the item to the reviewer's checklist, so a
+  missed bit returns as CHANGES_REQUESTED instead of shipping. Read a body back
+  with `show <id> --json | python3 -c "…['task']['body']" > f.md`; never call
+  bare `show` to check status — it echoes the whole body and comment thread
+  back into your context. Status/assignee/model checks are `list --json` piped
+  through a filter.
 - **A spec change also rewrites the dependent cards.** The reviewer task's body
   encodes the spec it checks against; edit only the implementer's card and the
   reviewer will demand the old design. Edit both, then dispatch.
@@ -124,6 +131,111 @@ brief/report-file/no-pasted-history rules are exactly the same.
 - **Park, then re-decide, then unblock.** A blocked card keeps its context and
   its comment history; that is why the owner's answer goes back onto the same
   card instead of a fresh one.
+- **`triage` is the backlog lane; `promote` will not move it.** `hermes kanban
+  promote <id>` accepts only `todo`/`blocked`; a card created with
+  `triage: true` — the right initial state for work the owner has not chosen
+  yet, since triage cards are never dispatched — is released with
+  `hermes kanban specify <id>`, which moves it to todo/ready for the
+  dispatcher. Create owner-pending candidates in triage, then specify the one
+  the owner picks.
+- **Rework after both cards are done: a fresh follow-up task, not a reopen.**
+  `unblock` and `reopen-review` refuse cards in `done` — a CHANGES_REQUESTED
+  discovered after the review card closed cannot requeue the implementer.
+  Open a NEW task parented on the review card, scope narrowed to exactly the
+  reviewer's Required Changes (e.g. tests only, game files untouched), body
+  carrying them verbatim; leave a comment on the done card for history.
+- **With a separate reviewer card, the implementer card must say
+  `kanban_complete`, not `kanban_request_review`.** The worker's own lifecycle
+  moves its card into the review lane, so the reviewer picks up the implementer
+  card — under the implementer's model — while your reviewer card sits gated on
+  the same diff: two review seats on one change, and the board shows the
+  implementer still running in `review`. Put the instruction in the card body
+  ("close with `kanban_complete`; independent review is a separate card").
+  When you forget it, the symptom is a notice naming the *implementer* card as
+  `@reviewer … done` and its assignee flipping to the reviewer: that is the
+  duplicate seat consuming your change, not a second opinion — the reviewer card
+  is still gated on the same diff.
+- **Review-lane worker crashes at spawn with `kanban_skills_unavailable`.**
+  The review lane force-loads `sdlc-review`; if that name sits in the
+  assignee profile's `skills.disabled`, every review run dies in ~10 s
+  (exit 1, empty output) and the card lands in `blocked` after two retries.
+  Check the profile config's `skills.disabled` before blaming the model;
+  remove the name, then unblock or (when a separate reviewer card exists)
+  complete the implementer card — never recreate it.
+- **A crash's cause picks the response; three look identical on the board.**
+  `hermes kanban --board <slug> runs <id>` prints outcome, elapsed and the
+  worker's last line. `Kanban owner refused: Gateway disconnected; turn outcome
+  is unknown` is infrastructure: the dispatcher retries by itself and no model
+  change is warranted — but check `git status`/`git diff` over the worker's paths
+  before the retry gets far, so half-written edits from the dead run are known
+  and a retry is not mistaken for progress. A spawn-fail with rc=0 and no kanban
+  call at all is a bad `model_override`; a wall of `APITimeoutError` is the
+  provider. Only the latter two justify touching the model map, and only after
+  asking.
+- **The card body is a tool argument, not a document.** A body pasted straight
+  out of your reasoning can pass the transport limit: a multi-kilobyte card
+  stalls the call and returns nothing. Keep the body to the contract (objective,
+  read/modify lists, bounds, acceptance) and put the long spec — long
+  tables, dump excerpts, findings — in a project file (`.scratch/<wave>/…md`)
+  that the body names as read-first. Same for edits: assemble the new body in
+  pieces in a file, then `--body "$(cat f.md)"`.
+  The stall is not specific to card bodies: a long spec file written in a single
+  `write_file` call fails the same way. Write it in two or three smaller pieces
+  (or create it small and `patch` it), keep the card body to one screen, and let
+  the body point at the spec file.
+- **Notifications lag the board and contradict it.** A chat notice can report
+  "worker crashed", "timed out (max_runtime=0s), will retry", or "retrying"
+  for a run that actually finished — the completion notice for the same card
+  arrives after. Card status and run history (`kanban_show`) are
+  authoritative: check them before re-dispatching, recreating a card, or
+  chasing a phantom crash.
+- **Reading the tree while a worker holds the claim returns half-built states.**
+  A generate/classify module re-imported mid-edit yields empty lists and missing
+  keys that read like real defects; a grep started a minute ago sees a partial
+  rewrite. Attribute the anomaly to "the worker is editing right now", and re-run
+  the check after the card is `done` before you write it up as a finding or build
+  a card body from it.
+- **Board-less subcommands resolve the board by env.** `comment` (and any
+  subcommand without a `--board` flag) fails with "unknown task" on a
+  non-default board — prefix `HERMES_KANBAN_BOARD=<slug>`.
+- **`--board` belongs to `kanban`, not to the subcommand.**
+  `hermes kanban dispatch --board <slug>` dies with `unrecognized arguments`;
+  the accepted form is `hermes kanban --board <slug> dispatch …`.
+- **A per-item work list hides cross-item inconsistency — accept at class
+  level, not per item.** When the card enumerates items (files, endpoints,
+  checklist entries) and the shared behaviour is one idiom, checking each item against
+  its own spec passes while the same input pattern behaves differently in two
+  items: the coder copies the reference only where the list named it, and the
+  reviewer verifies item-by-item, so nothing compares them. Two consequences.
+  (a) The card's acceptance carries a class line — "every occurrence of this
+  primitive in the data behaves identically" — and you verify it yourself by
+  enumerating the primitive from the source data and diffing the per-item
+  behaviour, not by reading the report. (b) A review that attributes behaviour
+  to "the orchestrator's decision" is reporting your own split instruction
+  back at you: re-read what you actually told the coder for the sibling items
+  before treating the verdict as agreement.
+- **A timed-out `clarify` is not an answer.** No response means the owner is
+  away, not that they agreed: take the coherent default, write the decision and
+  its rollback recipe (which files to revert, which table entries to drop) into
+  the wave's journal, and say plainly in the final message what you decided and
+  that it is reversible. Never resolve a decision the project already records
+  (spec, `AGENTS.md`, a comment marked as the owner's) this way — that class
+  waits for a real answer, and asking again is cheaper than a reverted tree.
+- **A report's green suite counts only what the worker ran.** Check the
+  ticket's acceptance batteries against the report's test list before
+  dispatching review: a worker that ran only its new test file and lint can
+  hide a 2-failure regression in a named static battery — the reviewer must
+  re-run every battery the ticket names, not just the new suite.
+- **A wave that changes a codebase-wide convention breaks old test pins.**
+  Static probes pin shapes (a required text, a required element, a count);
+  when the owner re-specs the convention, sweep test files for pins of the
+  old shape BEFORE dispatch and put their update into the ticket — otherwise
+  the worker ships a correct code change with a hidden failing battery it
+  never ran. When it surfaces in the full run anyway: the code is right, the
+  pins are stale, and the fix is a test-only follow-up — update probes to
+  the new convention, never weaken or delete them. An extraction helper that
+  reads one level of a structure misses nested items — helpers must descend
+  to the nesting level the spec names.
 
 ## Confirm Models & Providers Before Dispatch (REQUIRED GATE)
 
@@ -140,10 +252,22 @@ discovers a dead provider mid-task burns the budget of the whole run.
    When the user names a model in shorthand (e.g. «deepseek-flash»), resolve it
    to the exact model id from `config.yaml`/`custom_providers` (e.g. `deepseek-v4-flash`)
    and state what you set — never write a shorthand that is not a real model id.
+   **A provider's id namespace is not the profile's default string.** The same
+   model usually has a different id per provider (a bare `glm-5.3-flash` on one,
+   a slash-prefixed `glm/glm-5.3` on another), and the profile default is only
+   valid for the provider that profile is configured with. When the approved map
+   names provider P + model M, list P's own models (`GET <base_url>/models` with
+   that provider's key) and copy the id it returns verbatim; an id from the wrong
+   namespace fails at worker spawn, after the claim, not at creation.
 2. Present it as a table and ask for explicit approval. For unreliable
    providers, propose the fallback: which profile/model takes over.
 3. Offer a cheap health-check per executor (a one-token test call through that
-   profile) — recommended for flaky providers before a long run.
+   profile) — recommended for flaky providers before a long run. Probe with the
+   exact id you are about to pin. Read the result correctly: a 200 with empty
+   content is a working model (reasoning models often emit no text at a tiny
+   `max_tokens`), while an empty or non-JSON body is a retry, not a verdict —
+   probe twice before calling a provider dead, then report it and ask which
+   fallback to apply instead of swapping on your own.
 4. Record the approved map in the ledger and in the first kanban task's body.
 5. NEVER switch a profile's model/provider silently mid-run. If a provider dies
    (worker fails on an unavailable model, the circuit breaker trips):
