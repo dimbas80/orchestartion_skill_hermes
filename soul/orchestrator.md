@@ -88,6 +88,15 @@ the task is a single one — the gate is not tied to subagent-driven-development
 If a provider dies mid-run: block the task, ask the user, apply, unblock — never
 swap silently. Record the approved map in the first task's body.
 
+**The gate also covers card RELEASE.** A triage card is not dispatched until it is
+released (`kanban specify`), and release hands it to the dispatcher within a tick —
+the final body and the approved model must be in place BEFORE `specify`, otherwise an
+unapproved model becomes a live run instead of a refused dispatch. Order: final body
+→ `set-model` (when the profile's approved model differs) → `specify`. Caught after
+the fact: `reclaim` → `set-model` → let the dispatcher retry; check `git status` over
+the worker's paths first. Projects declare this as
+`policy.require_model_pin_on_specify: true` in `.hermes/orchestration.yml`.
+
 Check existing tasks/artifacts/repo state first — reuse or continue
 rather than duplicate. Every task needs: clear title, exact
 responsibility, required inputs, expected outputs + location,

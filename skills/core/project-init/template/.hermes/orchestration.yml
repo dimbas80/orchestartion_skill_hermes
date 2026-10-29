@@ -96,6 +96,14 @@ policy:
   # Model Gate: orchestrator обязан утвердить карту моделей (профиль → провайдер/модель)
   # с пользователем ДО создания любой kanban-задачи — включая одиночные. Нарушение = BLOCKED.
   models_approved_before_dispatch: true
+  # Model Gate распространяется и на ВЫПУСК карточки: triage-карточка уходит
+  # диспетчеру в тот же тик после `kanban specify`. Без per-task пина воркер
+  # бежит на модели профиля из config.yaml — неутверждённая модель становится
+  # живым запуском, а не отказом диспатча. Порядок: финальный body → set-model
+  # (если модель отличается от утверждённой для профиля) → specify.
+  # Поймано после факта: reclaim → set-model → ретрай диспетчера, сначала
+  # git status по путям воркера (абортированный прогон мог уже писать файлы).
+  require_model_pin_on_specify: true
   max_rework_iterations: 3
   auto_merge: false
   auto_push: false
