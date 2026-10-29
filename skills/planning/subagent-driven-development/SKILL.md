@@ -138,6 +138,16 @@ brief/report-file/no-pasted-history rules are exactly the same.
   `hermes kanban specify <id>`, which moves it to todo/ready for the
   dispatcher. Create owner-pending candidates in triage, then specify the one
   the owner picks.
+- **Prep the card BEFORE `specify`, not after.** Releasing a triage card hands
+  it to the dispatcher within a tick: the body you wrote at triage time is what
+  the worker reads, and with no per-task pin it runs on the assignee profile's
+  `config.yaml` model — an unapproved model, and the Model Gate violation lands
+  as a live run, not as a refused dispatch. So the order is: rewrite the body
+  (`--body "$(cat body.md)"`, board flag on the `kanban` command, not the
+  subcommand), `set-model`, then `specify`. Caught after the fact, the fix is
+  `reclaim` → `set-model` → let the dispatcher retry; check `git status` over
+  the worker's paths first, since the aborted run may already have written
+  files.
 - **Rework after both cards are done: a fresh follow-up task, not a reopen.**
   `unblock` and `reopen-review` refuse cards in `done` — a CHANGES_REQUESTED
   discovered after the review card closed cannot requeue the implementer.
