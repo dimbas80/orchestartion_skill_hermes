@@ -171,8 +171,14 @@ Moved from SKILL.md «Running the board». Lessons are verbatim; read whole file
   enumerates `file:line` from review time sends the worker hunting. Name the
   symbol and let the body say plainly "сверяй номера строк с текущим кодом",
   and treat the reviewer's own line refs in its findings as hints, not canon.
-- **Never hand-write a wave monitor — use the generator.** The orchestrator
-  profile has a monitor generator (`wave-monitor.sh` in the profile scripts dir;
+- **Never hand-write a wave monitor — use the generator.** A canonical copy of
+  the generator rides with this skill (`scripts/wave-monitor.sh`); the LIVE copy
+  must sit in the profile's own scripts dir
+  (`~/.hermes/profiles/orchestrator/scripts/wave-monitor.sh`) — cron resolves
+  `--monitor-script` bare filenames against that dir only, so after a skillset
+  reinstall copy it back from the skill's `scripts/` before arming. The
+  orchestrator
+  profile has this monitor generator; modes
   modes `arm <ids…> [--board --workdir --every --paused]`, `disarm-all`, `list`):
   it validates each task id against the board BEFORE arming (a typo'd id makes a
   monitor that never matches), dry-runs the status script before creating the
