@@ -202,5 +202,9 @@ the model comes from its profile/session (see Model Gate).
   package to (`bash scripts/review-package PLAN_FILE BASE HEAD` prints the unique
   path it wrote; the package never enters the controller's context)
 
+- The LAST section of `review.md` MUST be a heading line, exactly one of:
+  `## Вердикт: PASS` or `## Вердикт: CHANGES_REQUESTED`. Downstream tooling
+  (wave monitors) extracts the token from this line — no other shape is parsed.
+
 **Reviewer returns:** Spec Compliance verdict (✅/❌/⚠️), Strengths, Issues
 (Critical/Important/Minor), Task quality verdict

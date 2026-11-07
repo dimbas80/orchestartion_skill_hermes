@@ -182,13 +182,19 @@ Moved from SKILL.md «Running the board». Lessons are verbatim; read whole file
   holds `deliver`, `enabled` — paused jobs read `enabled: false` — and the
   monitor script name). Every hand-written predecessor failed for one of these
   exact reasons.
-- **The real verdict line is bold inline, not a heading.** Review verdicts in
-  `workflows/<id>/review.md` are written as `**Вердикт: PASS**` (or
-  `**Verdict: …**`) — a bold line inside the section, NOT a `## Вердикт`
-  heading; grepping for the heading (or the English word only) yields an empty
-  token forever. Extract the token with one regex over both shapes:
+- **The verdict line's shape is not canonical — parse it format-agnostically.**
+  Nothing historically pinned how the reviewer writes the verdict in
+  `workflows/<id>/review.md`: both `## Вердикт: …` headings (the majority) and
+  bold inline `**Вердикт: PASS**` lines occur. Grepping for one fixed shape
+  (a heading, an English word only, the review card's own dir instead of the
+  implementer's) yields an empty or constant token forever — the monitor never
+  fires and the silence surfaces as the owner asking what is happening.
+  Extract with one regex over both shapes:
   `(?:Вердикт|Verdict)\s*:?\s*\**\s*(CHANGES_REQUESTED|PASS)`, last match wins
-  (rework rounds append; the operative verdict is the last one). The verdict
+  (rework rounds append; the operative verdict is the last one). The reviewer
+  prompt templates now pin the shape (`## Вердикт: PASS` / `## Вердикт:
+  CHANGES_REQUESTED` as the last section); older artifacts predate the pin.
+  The verdict
   file lives in the IMPLEMENTER task's `workflows/` dir, not the review card's
   own — checking the review card's dir is the other silent-empty failure.
 - **Notifications lag the board and contradict it.** A chat notice can report

@@ -112,3 +112,7 @@ the model comes from its profile/session (see Model Gate).
 
 **Re-reviewer returns:** per-finding verdicts (ADDRESSED / NOT ADDRESSED),
 new breakage in the fix diff, out-of-scope observations, and a round verdict.
+
+- The LAST section of `review.md` MUST be a heading line, exactly one of:
+  `## Вердикт: PASS` or `## Вердикт: CHANGES_REQUESTED`. Downstream tooling
+  (wave monitors) extracts the token from this line — no other shape is parsed.
