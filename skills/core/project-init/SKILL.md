@@ -49,6 +49,10 @@ description: "ПРИ СТАРТЕ НОВОГО проекта: скопиров�
    `hermes kanban --board <slug> ls`, а не `hermes kanban ls --board <slug>`
    (последнее падает с «unrecognized arguments»).
 7. **Отчёт.** Покажи дерево верхнего уровня и одну строку: что игнорируется git'ом.
+   Шаблонный README («Engineering Project» / coordinated by Hermes Orchestrator) —
+   заглушка, не deliverable: как только утверждён design-doc или сделан первый
+   запуск CLI, перепиши README под проект — что делает, как запускать, карта
+   source-of-truth, внешние активы (kb в профиле, стабильные симлинки путей).
 8. **Передача — немедленно в brainstorming.** Сразу после отчёта загрузи `brainstorming`
    (`skill_view(name="brainstorming")`) и начни интервью — это этап discovery конвейера,
    инициатива перехода на тебе. Если пользователь принёс готовый текст (IDEA.md, заметка
