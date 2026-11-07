@@ -1,341 +1,81 @@
 ---
 name: brainstorming
-description: "You MUST use this before any creative work - creating features, building components, adding functionality, modifying behavior, or planning anything new, in software or out of it. Triggers: «новая фича», «давай сделаем», «придумаем», «новый проект», «спроектируем». NOT for stress-testing an existing plan - that is grilling. Интервью → подходы → design doc в docs/product/."
+description: "You MUST use this before any creative work - creating features, building components, adding functionality, modifying behavior, or planning anything new, in software or out of it. Triggers: «новая фича», «давай сделаем», «придумаем», «новый проект», «спроектируем». NOT for stress-testing an existing plan - that is grilling. NOT for clear small tasks (single-file fix, bug with clear repro, small well-defined change) — quick path instead: systematic-debugging / direct code + verification-before-completion (Routing Gate, README). Интервью → подходы → design doc в docs/product/."
 ---
 
 # Brainstorming
 
-You are very good at building. You build what you believe your human
-partner wants, and that belief is usually thinner than it feels. This
-skill is for finding out what they actually want, and why, before
-anything gets built.
-
-People often haven't finished working out what they want. Good questions
-help them think it through. When you understand the why, you make the
-hundred decisions they never mention the way they would have made them.
+You build what you believe your partner wants; that belief is usually thinner than it feels. This skill finds out what they actually want, and why, before anything is built. Full preamble and the Red Flags table: [references/rationale.md](references/rationale.md). Worked wordings of every message type: [references/examples.md](references/examples.md).
 
 ## First: What Do You Actually Know?
 
-Before you reply, ask yourself: what do I know about what they want, and
-why?
+- **Everything that matters is in the request** ("make the icon cornflower blue") — quick, clear task: do it, say what you did.
+- **Something non-trivial is missing** — start the conversation.
 
-- **Everything that matters is in the request** ("make the icon cornflower
-  blue"). This is a quick, clear task. Do it, and say what you did.
-- **Something non-trivial is missing.** Start the conversation.
-
-Before you start implementing, you must, in order:
-
-1. Lay out the approaches in a message of their own, and have your
-   human partner pick one (see Lay out the approaches).
-2. Write the design doc, short or full (see Size the Work).
-3. Get their approval of that doc.
-4. Offer a grilling stress-test of the plan (see After Approval), then invoke
-   the writing-plans skill. If writing-plans is not installed in this profile
-   (core-only setups), hand the approved design doc to the orchestrator — the
-   plan is written by the planning module, not here.
-
-Two things aren't implementing: a spike they said yes to (see Spike to
-feel things out), and doing what they asked once they've opted out of
-the questions.
+Before implementing, in order: lay out approaches in a message of their own → partner picks; write the design doc; get approval; offer grilling, then invoke writing-plans (core-only: hand the approved doc to the orchestrator — the plan is written by the planning module). Not implementing: an approved spike, and doing what they asked once they opted out of questions.
 
 ## Look Before You Ask
 
-In an existing project, initialize or refresh the repository code graph when `codegraph` is available and requested or `.codegraph-*` exists: run `codegraph init .`, verify with `codegraph status .`, then use `codegraph explore` for symbol relationships before broad grep or bulk reads. This grounds architecture discussion in actual call paths.
+Existing project → initialize/refresh the code graph when `codegraph` is available and requested or `.codegraph-*` exists (`codegraph init .` → `status .` → `explore` for symbols before broad grep). Given context — a spec, a plan, a handoff, files, earlier conversation — dig in before your first message; keep reading until you can explain how the relevant parts work today and what the change would touch. Never ask what the project or their context already answers.
 
-In an existing project, or when they've given you context (a spec, a plan,
-a handoff, files they pointed at, earlier conversation), dig in before your
-first message. Read what they referred to and the code or material it
-connects to, and keep reading until you can explain how the relevant
-parts work today and what this change would touch. Never ask what the
-Never ask what the project or their context already answers.
-
-**If they brought ready-made text** (IDEA.md, a note, a draft plan) — that is
-interview INPUT, not a replacement for the interview: read it first, then ask
-about the gaps. While formalizing it, actively hunt internal contradictions —
-each one goes to the user as an explicit question (they supply the real values;
-never pick "на усмотрение архитектора"). The recurring classes:
-- a value stated in one place vs a different value elsewhere;
-- a chosen part or setting vs its actual operating requirement;
-- an assumption about the runtime environment vs the real deployment target.
-
-Examples from past projects are illustrative — the classes are what matters.
-Unresolved items land in the decision log and the requirements' open-risks section.
+**Ready-made text** (IDEA.md, a note, a draft plan) is interview INPUT, not a replacement: read it first, ask about gaps, and actively hunt internal contradictions — each goes to the user as an explicit question (they supply the real values; never "на усмотрение архитектора"). Classes: value vs value; chosen part/setting vs its operating requirement; assumed runtime vs real deployment target. Unresolved items land in the decision log and the requirements' open-risks section.
 
 ## Your First Message
 
-Move the work forward, with one of these:
+- **They've already said what they want** (spec, plan, detailed request): about 200 words. Echo the request back in your own words (what, for whom, why, as far as said); add what you found that bears on it; say plainly anything they may not have considered that would change the ask or the build (constraint, conflict, cheaper path); end with one line inviting corrections, then one question about the point their request leaves open whose answer most changes what gets built. Specs are often incomplete; confirm before building on one.
+- **They haven't:** one open question in their own terms about the biggest unsettled thing, plus why you're asking (what the answer changes).
 
-- **They've already said what they want** (a spec, a plan, a detailed
-  request): aim for about 200 words for the whole message. Echo their
-  request back in your own words, so they can see whether you've got its
-  shape: what they want, who it's for, and why, as far as they've said.
-  Add what you found that bears on it: how the relevant parts work today
-  and what the change would touch. If you found something they may not
-  have considered that would change what they're asking for or how it
-  has to be built, like a constraint, a conflict, or a cheaper path, say
-  so plainly. How to build it comes later, once you understand what they
-  want (see Lay out the approaches). End with one line inviting
-  corrections, then one question about what they want: the thing their
-  request leaves open whose answer would most change what gets built.
-  Specs are often incomplete, so confirm before you build on one.
-- **They haven't:** one open question, in their own terms, about the
-  biggest thing their request leaves unsettled. Say why you're asking:
-  what the answer would change about what you build. For "a website for
-  my bakery": "If it's mostly for people deciding whether to stop by,
-  I'd lead with hours and what's in the case today; taking orders is a
-  different site. What do you want someone to do when they land on it?"
-
-How the message ends depends on whether their message asked for
-brainstorming:
-
-- **They asked for it** (by name, by invoking it, or by asking for a
-  design discussion): end with your question. They want this
-  conversation.
-- **They didn't:** they may not want a conversation at all. After your
-  question, add a light, one-line offer to just get going instead, like
-  "Or if you'd rather I just dive in, say so." If they take you up on
-  it, this skill is done: state any significant how-it-gets-made choice
-  (platform, language, medium) in one plain line, then do what they
-  asked through the normal workflow.
-
-That's the whole message.
+Ending depends on whether they asked for brainstorming. If yes — end with your question. If not — after the question add one light line offering to just get going ("Or if you'd rather I just dive in, say so."); if they take it, this skill is done: state any significant how-it-gets-made choice (platform, language, medium) in one plain line, then do the work through the normal workflow.
 
 ## The Conversation
 
-Each message ends with one question: a single sentence with no list of
-example answers hanging off it. Use plain language, pitched just a little
-above where your human partner is. Match their vocabulary; never use
-process jargon. You never need to quote this skill to your human
-partner.
+One question per message — a single sentence, no example lists hanging off it. Plain language pitched just above your partner; match their vocabulary; never process jargon; never quote this skill at them. Lead with what matters; offer the rest.
 
-Be clear and concise. Lead with what matters. Avoid jargon. When you
-report what you found, give them the most important findings and offer
-the rest.
-
-**Get them describing.** Open questions come first. Their own words carry
-intent that your options can't. Offer a short menu only when they're
-stuck. When they say "just guess" or "what do you think?", propose
-something concrete.
-
-**How it gets made.** Every project rests on choices about medium, tools,
-materials, and resources: the platform, programming language, and
-libraries for an app; the medium for a piece of art. Find out early which
-of those choices they want to make, which they're handing to you, and what
-they already have to work with. Someone with strong views or skills will
-want to talk it through. Someone counting on you needs sensible defaults,
-said in plain words. When there's existing work, build on what it already
-uses. Any choice you make goes in the design as your call, never as
-something they agreed to.
-
-For systems that generate structured documents, model repeated entities as a collection of objects, not numbered duplicate keys: `collection → validate → calculate each item → render a loop`, keeping input fields, per-item computation and rendered output separate. Do not promise that a template engine computes what it has no mechanism for — inspect the format's representation and verify computed-field substitution separately (declarative templating does not rewrite embedded formula objects).
-
-**Ground to cover.** This is territory, not a script. Never read these
-out as questions:
-
-- what kind of thing this is, and what makes it special
-- why now, and what success looks like to them
-- goals, non-goals, and anti-goals (what would make this a failure even
-  if it technically works)
-- prior art: what they've seen elsewhere, loved or hated
-- current state: what exists now, what they've tried
-- the details they care about
-
-**Make every question specific** to their project and what they've told
-you. Ask Socratically, the way a sharp colleague would: build each
-question on their last answer or on something you found, so it helps
-them think through a consequence or a case they may have missed
-("Voting closes before the meeting, and two members joined this month.
-Does someone who joins mid-round get a vote?"). When the reason isn't
-already plain, say what you're hoping to learn or what the answer would
-change. A proposal they can correct, plus your reason for it, often
-beats a question.
-
-**Offer recon.** Once you have a bit of grounding and looking further
-would help, offer to go look: deeper into their codebase or project,
-their own files and data, or the web. Say what you'd look for. They
-decide whether you go.
-
-**Lay out the approaches.** Once you understand what they want, and
-before you write anything up, put the ways of building it in a message
-of its own. Come up with several real alternatives and drop the weak
-ones, including any that work against why they want it and any the
-existing work rules out. Present the two or three that remain, grounding
-each in what the project actually does and saying what it trades off.
-Recommend one and say why, then ask which way they want to go. When
-there's genuinely one sensible way, say so and explain why the others
-don't fit. This is for how it gets built; for what they want, get them
-describing first.
-
-**Show, don't tell.** Offer the visual companion (below) whenever seeing
-would help more than reading:
-
-- something they'll look at: a screen, a page, a printout, a sign
-- a layout or arrangement: of a screen, a room, a schedule
-- a flow or a sequence of steps
-- options that would look different from each other
-- a structure that's easier to see than read: a diagram, a timeline, a map
-
-Once they've accepted, use it for mockups to react to, side-by-side
-options, and throwaway prototypes they can click.
-
-**Spike to feel things out.** Agentic work is waterfall, but very, very
-fast. A quick throwaway build is often the cheapest way to learn what
-they want or whether something works. Offer one when it would help.
-When they just want to spike, get out of the way. Spikes get no tests
-or minimal ones, aren't bulletproof, and skip the plan, implementation,
-and review process. Bring what the spike taught you back into the
-conversation.
+- **Get them describing.** Open questions first — their words carry intent options can't; a short menu only when stuck; on "just guess" propose something concrete.
+- **How it gets made.** Medium, tools, materials, resources: which they choose, which they hand you, what exists. Existing work → build on what it uses. Your choices go into the design as your call, never as something they agreed to.
+- **Structured-document systems** (collections not numbered duplicate keys; never promise a template engine what it can't compute): [references/examples.md](references/examples.md).
+- **Ground to cover** (territory, never a script): kind of thing and what makes it special; why now and what success looks like; goals, non-goals, anti-goals (what makes it fail even if it works); prior art loved and hated; current state and what they tried; details they care about.
+- **Specific, Socratic questions:** build each on their last answer or something you found; when the reason isn't plain, say what you hope to learn. A correctable proposal plus your reason often beats a question.
+- **Offer recon** once grounded (codebase/files/data or the web — say what you'd look for; they decide).
+- **Lay out the approaches** before writing anything, in a message of its own: several real alternatives, drop the weak ones (against their why, or ruled out by existing work), present 2–3 grounded in what the project does and what each trades off; recommend one and say why; ask which way. Genuinely one sensible way → say so and why others don't fit.
+- **Show, don't tell.** Offer the visual companion when seeing beats reading: something they'll look at, a layout, a flow, distinguishable options, structures easier to see than read. Accepted → mockups, side-by-side options, clickable throwaway prototypes.
+- **Spike to feel things out:** a quick throwaway build is often the cheapest way to learn what they want or whether something works; when they just want to spike, get out of the way. No/minimal tests, skip plan/implementation/review; bring learnings back.
 
 ## Play It Back
 
-Play back as you go. As soon as you understand one part well enough to
-describe it (what it's for and who it serves, say, or how one piece
-behaves), describe that part back in about 200-300 words, then return to
-questions about the next part. Playback and questions alternate through
-the whole conversation; the last chunk covers whatever is left.
-
-Only what they said goes in as theirs. Anything you filled in goes in
-as your proposal, with your reason. End each chunk by asking what's wrong
-or missing.
-
-Before you send a chunk, check it: does it describe something they'll
-look at, like a page, a screen, a schedule, or a printout? If so, and
-they haven't seen the visual companion offer yet, send the offer instead
-(its own message, below) and hold the chunk for the next message. Once
-they've accepted, put a mockup next to the description.
+As soon as one part is clear enough to describe, play it back (200–300 words), then return to questions about the next part; playback and questions alternate to the end. Only what they said goes in as theirs; anything you filled in is your proposal with your reason. End each chunk asking what's wrong or missing. If the chunk describes something they'll *look at* and the visual offer hasn't been made yet — send the offer instead (its own message) and hold the chunk; after acceptance put a mockup beside it.
 
 ## Terms and Decisions Go Down as You Go
 
-As a vocabulary term crystallises or a decision gets made, write it down
-immediately: terms into `GLOSSARY.md` at the repo root, decisions that change
-future work into `docs/adr/` - both created lazily, with the first entry. Follow
-the project's domain-doc conventions (`docs/agents/domain.md` when present); for
-the full discipline, invoke domain-modeling. By the end of the interview the
-glossary already exists - nobody has to remember to run it separately.
+A vocabulary term crystallises → `GLOSSARY.md` at repo root. A decision that changes future work → `docs/adr/`. Both created lazily with the first entry. Follow the project's domain-doc conventions (`docs/agents/domain.md` when present); full discipline → invoke domain-modeling. By the end of the interview the glossary already exists.
 
 ## Size the Work
 
-Once you understand what they want and they've picked an approach, say
-how big the work is in plain words. They can override it.
+Say how big the work is in plain words; they can override.
 
 | Size | The design doc |
 |------|----------------|
 | A small change | a short one: what you already covered together, written down |
 | A project | the full written design (below) |
 
-Short or full, the design doc has an **Approaches** part: the two or
-three ways you considered building it, what each trades off, which one
-they picked, and why. They pick in the conversation, before you write
-the doc.
+Short or full, the doc has an **Approaches** part: the ways considered, what each trades off, which they picked and why — they pick in the conversation, before you write. Grows mid-task → stop, say so, step up a size. Really several independent projects → say so, agree an order, brainstorm one at a time.
 
-If it grows mid-task, stop, say so, and step up a size.
-
-If this is really several independent projects, say so, agree on an order, and
-brainstorm them one at a time.
-
-**Too big or too foggy for a design doc?** If the work clearly won't fit one
-session and the way to the destination isn't visible yet - you can't even name
-the decisions it hangs on - don't force a design doc. Hand off: invoke
-wayfinder to chart a map of decision tickets, and run the discovery through it.
-If wayfinder is not installed in this profile, hand the work to the
-orchestrator/architect (planning module) instead.
+**Too big or too foggy for a design doc** (won't fit a session, you can't even name the decisions it hangs on): don't force one — invoke wayfinder to chart a map of decision tickets; not installed → hand off to the orchestrator/architect (planning module).
 
 ## The Written Design
 
-Write a plain document a talented builder in the domain could plan
-from without going back to your human partner. Cover:
+A plain document a talented builder in the domain could plan from without coming back to the partner: intent and why; goals/non-goals/anti-goals; constraints; approaches; their how-decisions; what's left to the builder. Small change: the same points in a line or two each, straight to the partner, no builder check.
 
-- intent and the why
-- goals, non-goals, anti-goals
-- constraints
-- approaches (above)
-- the parts of the how they decided, as they decided them
-- what's left to the builder
-
-For a small change, the short design covers the same points in a line
-or two each and goes straight to your human partner, without the
-builder check.
-
-**Where it goes:** in a software project using the orchestration template
-(`.hermes/orchestration.yml` present), into `docs/product/` - follow the
-project's artifact policy (e.g. `product-spec.md`, or `requirements.md` when the
-doc is requirements-shaped), committed. Otherwise, ask. Your human partner's
-preferences override both.
-
-**Builder check** (for a project): dispatch a fresh subagent with
-`builder-check-prompt.md` in this directory — in the multi-profile setup create a
-kanban task for the reviewer profile instead of an in-session subagent. When you tell your human
-partner you're writing it up, say a reviewer will read it first and you
-may come back once with a few questions. Don't hand over the document
-until the check is back. Sort what the builder asks into three piles:
-
-- **Answered already** by the conversation or the project: put the answer
-  in the document.
-- **Minor:** a sensible builder could settle it without changing what gets
-  built. Settle it yourself and mark it in the document as your call.
-- **Theirs:** only your human partner can answer it, and the answer changes
-  what gets built.
-
-Bring the "theirs" pile in one message, most important first. Update the
-document with their answers, then hand it over with a short list of the
-calls you made so they can check those while reading. That's the only
-round of questions the check produces. Without a subagent tool, read the
-document as that builder yourself.
+**Where it goes, and the builder check** (fresh subagent with `builder-check-prompt.md`, or a kanban task to the reviewer profile; three piles: answered / minor / theirs; one round of "theirs" questions): [references/design-doc.md](references/design-doc.md).
 
 ## After Approval: Offer the Stress-Test
 
-Once the design doc is approved, ask your human partner one question:
-whether to stress-test the plan with grilling (its rounds of interview
-questions over the decision tree). If they say yes, invoke grilling, fold
-whatever it changes back into the design doc, and re-confirm those spots
-with your human partner. Either way, the next step is the plan: invoke
-writing-plans and no other skill.
+Once the doc is approved, ask one question: stress-test the plan with grilling? Yes → invoke grilling, fold changes back into the doc, re-confirm those spots. Either way the next step is the plan: invoke writing-plans and no other skill.
 
 <HARD-GATE>
-Nothing gets built until your human partner approves the design doc:
-the short one for a small change, the full one for a project.
-Building includes writing product code, scaffolding, installing
-dependencies, creating projects, and invoking an implementation skill.
-Reading and exploring are fine.
-
-Two exceptions. If they opted out of the questions, the skill is done
-and the gate goes with it. A spike they said yes to may be built; it
-stays labeled throwaway, and keeping what it produced is a new request
-that comes back through this gate.
-
-After the design doc is approved, follow the offer above: grilling first if
-they want it, then invoke writing-plans and no other skill.
+Nothing gets built until the partner approves the design doc (short for a small change, full for a project). Building = product code, scaffolding, installing dependencies, creating projects, invoking any implementation skill. Reading and exploring are fine. Two exceptions: they opted out of the questions (the skill and its gate are done), and an approved spike (built throwaway only; keeping what it produced is a new request that comes back through this gate). After approval: grilling first if they want it, then writing-plans and no other skill.
 </HARD-GATE>
-
-## Red Flags
-
-| Thought | Reality |
-|---------|---------|
-| "I'll offer a menu of what they might want" | Options steer. Ask them to describe it first. |
-| "I'll fill in sensible defaults" | Good. Say them out loud. A default they never heard is one they couldn't reject. |
-| "I've answered their questions, so I'll write the doc" | Lay out the approaches first, in a message of their own. |
-| "I should explain the process first" | Ask your question. The process shows itself. |
-| "They said 'sounds good' to the idea" | Approval covers what you showed them. A design doc you haven't written isn't approved. |
-| "The spike works, I'll keep building on it" | Keeping it is a new request. Back through the gate. |
 
 ## Visual Companion
 
-A browser tab for showing mockups, diagrams, and prototypes. It's a
-tool, not a mode: accepting it doesn't send every question to the
-browser.
-
-**Offer it just-in-time.** Offer it the first time one of the moments
-above comes up, never upfront. The offer is its own message with nothing
-else in it:
-
-> "This might be easier if I show you. Want me to open a browser tab with some mockups?"
-
-If they decline, stay in text and don't offer again unless they raise it.
-
-**Per question, ask: would they understand this better by seeing it?**
-Mockups, layouts, diagrams, and side-by-side designs go in the browser.
-Requirements, scope, tradeoffs, and conceptual choices stay in text. A
-question about a UI topic isn't automatically a visual question.
-
-If they accept, read `visual-companion.md` in this directory before
-starting the server.
+A browser tab for mockups, diagrams, prototypes — a tool, not a mode; accepting doesn't send every question to the browser. Offer just-in-time, the first time one of the "show, don't tell" moments comes up, never upfront; the offer is its own message (wording in examples). Declined → stay in text, don't re-offer unless they raise it. Per question ask: would they understand this better by seeing it? Mockups, layouts, diagrams, side-by-side designs → browser; requirements, scope, tradeoffs, conceptual choices → text (a UI topic is not automatically a visual question). Accepted → read `visual-companion.md` in this directory before starting the server.
