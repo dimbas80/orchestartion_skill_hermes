@@ -171,6 +171,26 @@ Moved from SKILL.md «Running the board». Lessons are verbatim; read whole file
   enumerates `file:line` from review time sends the worker hunting. Name the
   symbol and let the body say plainly "сверяй номера строк с текущим кодом",
   and treat the reviewer's own line refs in its findings as hints, not canon.
+- **Never hand-write a wave monitor — use the generator.** The orchestrator
+  profile has a monitor generator (`wave-monitor.sh` in the profile scripts dir;
+  modes `arm <ids…> [--board --workdir --every --paused]`, `disarm-all`, `list`):
+  it validates each task id against the board BEFORE arming (a typo'd id makes a
+  monitor that never matches), dry-runs the status script before creating the
+  job (a broken verdict extractor prints an empty token forever), creates the
+  job through the CLI with `--deliver bot-chat:<profile>` explicitly, and
+  re-reads the jobs store afterwards (the CLI's `ok` proves nothing; the store
+  holds `deliver`, `enabled` — paused jobs read `enabled: false` — and the
+  monitor script name). Every hand-written predecessor failed for one of these
+  exact reasons.
+- **The real verdict line is bold inline, not a heading.** Review verdicts in
+  `workflows/<id>/review.md` are written as `**Вердикт: PASS**` (or
+  `**Verdict: …**`) — a bold line inside the section, NOT a `## Вердикт`
+  heading; grepping for the heading (or the English word only) yields an empty
+  token forever. Extract the token with one regex over both shapes:
+  `(?:Вердикт|Verdict)\s*:?\s*\**\s*(CHANGES_REQUESTED|PASS)`, last match wins
+  (rework rounds append; the operative verdict is the last one). The verdict
+  file lives in the IMPLEMENTER task's `workflows/` dir, not the review card's
+  own — checking the review card's dir is the other silent-empty failure.
 - **Notifications lag the board and contradict it.** A chat notice can report
   "worker crashed", "timed out (max_runtime=0s), will retry", or "retrying"
   for a run that actually finished — the completion notice for the same card
