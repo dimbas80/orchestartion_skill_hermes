@@ -171,15 +171,21 @@ Moved from SKILL.md «Running the board». Lessons are verbatim; read whole file
   enumerates `file:line` from review time sends the worker hunting. Name the
   symbol and let the body say plainly "сверяй номера строк с текущим кодом",
   and treat the reviewer's own line refs in its findings as hints, not canon.
+- **An agent's report about its own channels is a self-report — probe it.** The
+  orchestrator claimed `bot-chat:<profile>` cron delivery "does not wake me";
+  the delivery log showed zero bot-chat deliveries had ever been attempted. A
+  one-shot probe job with `--deliver bot-chat:<profile>` disproved the claim:
+  the injected prompt woke the agent, it answered the probe and cleaned the job
+  up itself. Where the reply lands matters: the profile's canonical Bot Chat
+  (a local chat), not the messaging lane — the owner sees the exchange only
+  when that profile's chat is open, but the agent IS woken and acts.
 - **Never hand-write a wave monitor — use the generator.** A canonical copy of
   the generator rides with this skill (`scripts/wave-monitor.sh`); the LIVE copy
   must sit in the profile's own scripts dir
   (`~/.hermes/profiles/orchestrator/scripts/wave-monitor.sh`) — cron resolves
   `--monitor-script` bare filenames against that dir only, so after a skillset
-  reinstall copy it back from the skill's `scripts/` before arming. The
-  orchestrator
-  profile has this monitor generator; modes
-  modes `arm <ids…> [--board --workdir --every --paused]`, `disarm-all`, `list`):
+  reinstall copy it back from the skill's `scripts/` before arming. Modes
+  `arm <ids…> [--board --workdir --every --paused]`, `disarm-all`, `list`:
   it validates each task id against the board BEFORE arming (a typo'd id makes a
   monitor that never matches), dry-runs the status script before creating the
   job (a broken verdict extractor prints an empty token forever), creates the
