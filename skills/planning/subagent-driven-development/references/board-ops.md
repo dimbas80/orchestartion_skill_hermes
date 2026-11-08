@@ -171,6 +171,21 @@ Moved from SKILL.md «Running the board». Lessons are verbatim; read whole file
   enumerates `file:line` from review time sends the worker hunting. Name the
   symbol and let the body say plainly "сверяй номера строк с текущим кодом",
   and treat the reviewer's own line refs in its findings as hints, not canon.
+- **No external path can inject a turn into a client-owned session
+  (desktop/TUI) — only the Bot Chat accepts one.** Probed: `notify+wake` and a
+  raw `api_server:<session id>` self-post both end in HTTP 409
+  `permission_denied` (12 retries, cursor stuck, nothing in the chat) for a
+  desktop session of ANY profile, primary included — the client owns its
+  session's only writer. The single injectable local chat is the profile's
+  Bot Chat, and only through the session-authority door (`session_bot.deliver`,
+  i.e. cron `--deliver bot-chat:<profile>`) — not through an API-turn binding.
+  Practical consequence for a dispatcher that works in a TUI/desktop
+  conversation: a monitor wake lands in a DIFFERENT chat (the Bot Chat) and
+  that chat's agent answers there — the owner's working conversation is never
+  woken, and an agent that says "the push does not reach me" is correct about
+  its own chat. Either run dispatcher work in the Bot Chat, or make the monitor
+  the owner-facing notifier (telegram) and treat the wake-in-Bot-Chat agent as
+  the analyst.
 - **Kanban `notify+wake` cannot wake an agent that lives in a LOCAL Bot Chat
   session — probe proved it, by design.** Two separate refusals: (a) a
   subscription stamped with a non-primary profile on a non-`api_server`
