@@ -7,6 +7,7 @@
 #
 # Использование:
 #   wave-monitor.sh arm <id1> <id2> ... [--board SLUG] [--workdir PATH] [--every 10m] [--paused]
+#                                    [--telegram-chat ID] [--deliver "цель,цель"]
 #   wave-monitor.sh disarm-all          # снять все wave-monitor-задачи
 #   wave-monitor.sh list                # показать активные мониторы
 set -euo pipefail
@@ -15,6 +16,8 @@ PROFILE=orchestrator
 SCRIPTS_DIR="$HOME/.hermes/profiles/$PROFILE/scripts"
 JOBS_JSON="$HOME/.hermes/profiles/$PROFILE/cron/jobs.json"
 DELIVER="bot-chat:$PROFILE"
+deliver_override=""
+tg_chat="${WAVE_MONITOR_TELEGRAM_CHAT:-}"
 mkdir -p "$SCRIPTS_DIR"
 
 die() { echo "ОШИБКА: $*" >&2; exit 1; }
@@ -31,7 +34,7 @@ data = json.load(open(sys.argv[1]))
 jobs = data.get("jobs", data) if isinstance(data, dict) else data
 seq = jobs if isinstance(jobs, list) else list(jobs.values())
 for j in seq:
-    if isinstance(j, dict) and str(j.get("name", "")).startswith("wave-monitor"):
+    if isinstance(j, dict) and str(j.get("name", "")).startswith(("wave-monitor", "wave-")):
         print(j.get("id") or j.get("job_id"))
 PYLIST2
 ); do
@@ -57,6 +60,8 @@ while [ $# -gt 0 ]; do
     --every)  every="$2";  shift 2 ;;
     --name)   name="$2";   shift 2 ;;
     --paused) paused="--paused"; shift ;;
+    --telegram-chat) tg_chat="$2"; shift 2 ;;
+    --deliver) deliver_override="$2"; shift 2 ;;
     t_*)      ids+=("$1"); shift ;;
     *) die "неизвестный аргумент: $1" ;;
   esac
@@ -90,6 +95,7 @@ done
 
 # ── имя и файл статус-скрипта
 [ -n "$name" ] || name="wave-monitor-$board-$(date +%d%H%M)"
+case "$name" in wave-*) ;; *) name="wave-monitor-$name" ;; esac
 base="status_${name}.sh"
 status_script="$SCRIPTS_DIR/$base"
 
@@ -141,6 +147,16 @@ for id in "${ids[@]}"; do
   echo "$line" | grep -Eq "verdict=(PASS|CHANGES_REQUESTED|NONE)" || die "$id: вердикт-токен пустой/мусорный — извлечение сломано"
 done
 
+# ── сборка целей: bot-chat (будит агента) + telegram (доходит до хозяина).
+#    Важно: `telegram` без chat_id = home_channel профиля, а он у части профилей
+#    не задан (доставка молча падает) — поэтому chat_id передаётся явно.
+if [ -n "$deliver_override" ]; then
+  DELIVER="$deliver_override"
+elif [ -n "$tg_chat" ]; then
+  DELIVER="telegram:$tg_chat,bot-chat:$PROFILE"
+fi
+echo "── цели доставки: $DELIVER"
+
 # ── постановка cron: ТОЛЬКО через CLI (inline-вызов с длинным промптом коллапсирует),
 #    --deliver явно (дефолт local не появляется в чате, вывод теряется молча)
 prompt="Wave monitor tick. Tracked tasks above. Правила: любой verdict=CHANGES_REQUESTED -> прочитай workflows/<id>/review.md, перечисли требуемые правки, по строке на находку. Все verdict=PASS и все статусы done -> ответь ровно: WAVE COMPLETE. Иначе ответь ровно: WAITING. Доску и карточки не менять."
@@ -166,8 +182,10 @@ if not job:
     sys.exit(f"ОШИБКА: задача {name} не найдена в {path}")
 print(f"── верификация стора: name={job.get('name')} deliver={job.get('deliver')} "
       f"monitor={job.get('monitor_script') or job.get('monitorScript')} enabled={job.get('enabled')}")
-if not str(job.get("deliver", "")).startswith("bot-chat"):
-    sys.exit("ОШИБКА: deliver не bot-chat — вывод монитора уйдёт не в чат оркестратора")
+deliver = str(job.get("deliver", ""))
+if "bot-chat" not in deliver:
+    sys.exit("ОШИБКА: в deliver нет bot-chat — агента не разбудит")
+print(f"   цели: {[x.strip() for x in deliver.split(',') if x.strip()]}")
 PYCHECK
 
 echo "── ГОТОВО: монитор '$name' стоит (первый тик даст baseline-WAITING — это норма)."

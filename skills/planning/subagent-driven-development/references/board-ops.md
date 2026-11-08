@@ -217,7 +217,15 @@ Moved from SKILL.md «Running the board». Lessons are verbatim; read whole file
   (`~/.hermes/profiles/orchestrator/scripts/wave-monitor.sh`) — cron resolves
   `--monitor-script` bare filenames against that dir only, so after a skillset
   reinstall copy it back from the skill's `scripts/` before arming. Modes
-  `arm <ids…> [--board --workdir --every --paused]`, `disarm-all`, `list`:
+  `arm <ids…> [--board --workdir --every --paused --telegram-chat ID --deliver "a,b"]`,
+  `disarm-all`, `list`. `deliver` accepts a COMMA-SEPARATED list (the resolver
+  splits on commas), so the useful combo is `telegram:<owner chat>,bot-chat:<profile>`:
+  the Telegram copy reaches the owner where he reads, the bot-chat copy wakes the
+  agent that acts. Pass the chat id explicitly — a bare `telegram` target means the
+  profile's home_channel, which is unset on several profiles and fails silently.
+  Verified end to end: one tick delivered to both lanes, the woken agent answered
+  in the Bot Chat. `--name` is forced to a `wave-*` prefix so a forgotten test job
+  is still caught by `disarm-all`.
   it validates each task id against the board BEFORE arming (a typo'd id makes a
   monitor that never matches), dry-runs the status script before creating the
   job (a broken verdict extractor prints an empty token forever), creates the
