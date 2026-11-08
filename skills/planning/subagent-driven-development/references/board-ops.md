@@ -171,6 +171,23 @@ Moved from SKILL.md «Running the board». Lessons are verbatim; read whole file
   enumerates `file:line` from review time sends the worker hunting. Name the
   symbol and let the body say plainly "сверяй номера строк с текущим кодом",
   and treat the reviewer's own line refs in its findings as hints, not canon.
+- **Kanban `notify+wake` cannot wake an agent that lives in a LOCAL Bot Chat
+  session — probe proved it, by design.** Two separate refusals: (a) a
+  subscription stamped with a non-primary profile on a non-`api_server`
+  platform is filtered out at route authorization (no `profile_routes` entry =
+  no delivery, cursor never advances); (b) with `--platform api_server` and the
+  profile's Bot Chat session id the subscription IS claimed, but the wake path
+  binds the target as an API conversation and a local chat under a session
+  authority refuses a second writer with `permission_denied` (12 retries, no
+  wake, no message). The gateway log line to grep is
+  `kanban notifier: wake self-post failed … permission_denied`. The working
+  channel into such a session is exactly what the cron monitor already does —
+  `--deliver bot-chat:<profile>` goes through the session-authority door
+  (`session_bot.deliver`), not the API-turn binding. Consequence: board
+  subscriptions are the right event source only when the destination is a
+  routable messaging chat; for a local Bot Chat the cron monitor stays
+  necessary. Remove a failing test subscription immediately — it retries every
+  tick and floods the gateway log.
 - **An agent's report about its own channels is a self-report — probe it.** The
   orchestrator claimed `bot-chat:<profile>` cron delivery "does not wake me";
   the delivery log showed zero bot-chat deliveries had ever been attempted. A
