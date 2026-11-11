@@ -32,6 +32,23 @@ Before defining tasks, map out which files will be created or modified and what 
 
 This structure informs the task decomposition. Each task should produce self-contained changes that make sense independently.
 
+## Handoff Contract — what a plan is, and what the architect returns
+
+The plan is a **specification plus a file map** — never a dump of file contents.
+Write down what each file is responsible for, the exact interfaces (signatures,
+field names, values taken from the spec), the test that proves each task, and
+the constraints. Do **not** paste whole files, whole modules, or large code
+bodies into the plan: a pasted file goes stale the moment implementation starts,
+and every downstream reader (coder, reviewer, controller) pays for it on every
+turn. The maximum is a short signature, a schema row, or a three-line example
+that pins an exact value.
+
+When reporting back to whoever asked for the plan (dispatcher, owner), return
+**under 10 lines**: the plan file path, the task list (one line per task:
+number, title, files touched), and any decision that needs approval. Not the
+plan body, not code — the plan lives in its file; reference it, don't reproduce
+it.
+
 ## Task Right-Sizing
 
 A task is the smallest unit that carries its own test cycle and is worth a

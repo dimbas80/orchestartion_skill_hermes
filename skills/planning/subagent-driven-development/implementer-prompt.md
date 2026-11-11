@@ -140,12 +140,23 @@ the model comes from its profile/session (see Model Gate).
     report file):
     - **Status:** DONE | DONE_WITH_CONCERNS | BLOCKED | NEEDS_CONTEXT
     - Commits created (short SHA + subject)
+    - `git diff --stat BASE..HEAD` for YOUR commits — the file/line counts
+      (the controller and the reviewer need the SHAPE of the change, not its
+      text). Keep it to the stat lines; if it runs past ~8 lines, collapse it
+      to one summary line (`8 files, +214 -37`) and let the report file carry
+      the full list.
     - One-line test summary (e.g. "14/14 passing, output pristine")
     - Your concerns, if any
     - The report file path
 
+    Never paste code, diffs, or file contents into your final message: the
+    commit holds the code, the report file holds the detail, and the message is
+    a status line. The controller re-reads every message it receives on every
+    later turn — a pasted diff taxes the whole rest of the run.
+
     If BLOCKED or NEEDS_CONTEXT, put the specifics in the final message
-    itself — the controller acts on it directly.
+    itself — the controller acts on it directly: a few lines of error text or
+    the exact failing command, never a file dump.
 
     Use DONE_WITH_CONCERNS if you completed the work but have doubts about correctness.
     Use BLOCKED if you cannot complete the task. Use NEEDS_CONTEXT if you need
